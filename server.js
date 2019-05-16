@@ -20,27 +20,9 @@ mongoose.connection.once('open', () => {
 mongoose.connection.on('error', err => console.log(err.message + ' is Mongod not running?'))
 mongoose.connection.on('disconnected', () => console.log('mongo disconnected'))
 
-//Middleware
-// ADDED CORS MIDDLEWARE
-// Doesn't work, sticking with cors()
-// const whitelist = ['http://localhost:3003', 'https://enigmatic-beach-40420.herokuapp.com']
-
-// const corsOptions = {
-//   origin: whitelist
-//   origin: function (origin, callback) {
-//     if (whitelist.indexOf(origin) !== -1) {
-//         const index = whitelist.indexOf(origin)
-//         return whitelist[index]
-//     } else {
-//       callback(new Error('Not allowed by CORS'))
-//     }
-//   }
-// }
-
+// Middleware
 app.use(cors())
-
 app.use(express.json()); //use .json(), not .urlencoded()
-
 app.use(session({
   secret: 'keyboard cat',
   resave: false,
@@ -51,25 +33,22 @@ app.use(session({
 // CONTROLLERS
 const jobsController = require('./controllers/jobs')
 app.use('/jobs', jobsController)
+
 const userController = require('./controllers/users.js')
-
 app.use('/users', userController)
-const sessionsController = require('./controllers/sessions.js');
 
+const sessionsController = require('./controllers/sessions.js');
 app.use('/sessions', sessionsController);
 
 
 
-
-
-
-// INDEX ROUTE
+// INDEX ROUTE (for testing purposes)
 app.get('/', (req, res) => {
   console.log(req.headers)
    res.send('Hello World')
   })
 
-// seed route
+// seed route (for testing purposes)
 app.get('/seed', (req, res) => {
   Job.create([
     {

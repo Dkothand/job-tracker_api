@@ -4,7 +4,7 @@ const User = require('../models/users')
 const Job = require('../models/jobs')
 const mongoose = require('mongoose')
 
-// INDEX ROUTE
+// post route (to display a list of jobs of the logged in user)
 jobs.post('/', (req, res) => {
     User.findOne({
         username: req.body.username
@@ -29,20 +29,20 @@ jobs.post('/', (req, res) => {
 })
 
 
-// CREATE ROUTE - TESTED AND CONFIRMING CREATE ROUTE WORKS (DEVIN)
+// create route (to create a new job and to push id to user's jobs array)
 jobs.post('/create', (req, res) => {
-    // res.send('create route hit!')
-    console.log('req is', req.body)
-    // console.log('req session is', req.session)
+    // save the username from req.body
     const user = req.body.username
-    console.log('user is', user)
+    // delete the username property from req.body
     delete req.body.username
-    console.log('new req.body is', req.body)
+
+    // create a new job
     Job.create(req.body, (error, createdJob) => {
         if (error) {
           res.status(400).json({ error: error.message });
         } else {
           console.log('createdJob=', createdJob);
+          // push the created job's id into user jobs array
           User.findOneAndUpdate(
             {username: user},
             {
@@ -58,12 +58,15 @@ jobs.post('/create', (req, res) => {
     })
 })
 
-// destroy route (DELETE) - TESTED AND CONFIRMING EDIT ROUTE WORKS (DEVIN)
+
+// destroy route (to remove a job from the list of jobs)
 jobs.delete('/:id', (req, res) => {
+    // remove a job from the database
     Job.findByIdAndRemove(req.params.id, (err, deletedJob) => {
         if (err) {
         res.status(400).json({ error: err.message });
         } else {
+            // delete the removed job's id from user jobs array
             User.findOneAndUpdate(
                 {username: req.body.username},
                 {
@@ -71,16 +74,15 @@ jobs.delete('/:id', (req, res) => {
                 },
                 {new: true},
                 (err, updatedUser) => {
-                    console.log(updatedUser)
                     res.status(200).send(deletedJob)
                 }
             )
-        // res.status(200).json(deletedJob);
         }
     })
 })
 
-// update route (PUT) - TESTED AND CONFIRMING UPDATE ROUTE WORKS (DEVIN)
+
+// update route (to switch 'applied/not applied')
 jobs.put('/:id', (req, res) => {
     Job.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, updatedJob) => {
         if (err) {

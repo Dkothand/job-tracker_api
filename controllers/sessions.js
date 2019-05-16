@@ -12,6 +12,7 @@ sessions.post('/', (req, res) => {
         if (!foundUser) {
             res.status(401).send('wrong username or password!')
         } else if (bcrypt.compareSync(req.body.password, foundUser.password)) {
+            // auto log in when a new user signs up
             req.session.currentUser = foundUser;
             res.status(200).send('logged In')
         } else {
@@ -22,9 +23,7 @@ sessions.post('/', (req, res) => {
 
 // destroy route (to log out)
 sessions.delete('/delete', (req, res)=>{
-    console.log('logout clicked');
     req.session.destroy(() => {
-        // res.redirect('/travel')
         res.status(200).send('logged out');
         console.log('logged out');
     })
